@@ -1,23 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block head %}
+    <title>Gameit</title>
+{% endblock %}
+
+{% block content %}
     <h1>Welcome to the site!</h1>
     {% if not user.is_authenticated %}
         <a href="register"><button>Зарегистрироваться</button></a>
-        <a href="register"><button>Войти</button></a>
+        <a href="login"><button>Войти</button></a>
     {% else %}
-        <a href="profile/@{{ user.username }}">
-            <button>profile</button>
-        </a>
+        <a href="profile/@{{ user.username }}"><button>profile</button></a>
+
+        <a href="games">Перейти к играм</a>
         <br>
-        <a href="logout">
-            Выйти из системы
-        </a>
+        <a href="logout">Выйти из системы</a>
     {% endif %}
-</body>
-</html>
+{% endblock %}

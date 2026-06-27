@@ -1,21 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>  
-    
+{% extends 'base.html' %}
+
+{% block content %}
     <div style="vertical-align: middle; height: 100vh; display: flex; align-items: center; justify-content: space-around">
         
         <form style="vertical-align:middle;" method="post">
         {% csrf_token %}
         <div class="form-group mx-auto" style="max-width: 350px;">
-            <button type="submit" class="btn btn-primary align-self-center">Выйти из системы</button>
+            <button type="submit" class="btn btn-primary align-self-center">Выйти из аккаунта</button>
+            <p>Текущий аккаунт: {{ user.username }}</p>
         </div>
         
         </form>
     </div>
-</body>
-</html>
+{% endblock %}

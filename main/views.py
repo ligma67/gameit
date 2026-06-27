@@ -100,7 +100,6 @@ def profile(request, name=None):
                     context = {}
                     context['user_itself'] = False
                     context['username'] = name
-                    request.user.friends.add()
                     return render(request, 'profile.html', context)
                 else:
                     print("user not found")
@@ -111,3 +110,8 @@ def profile(request, name=None):
     if request.method != "GET":
         return redirect("/")
     return render(request, "profile.html", context)
+
+def games(request):
+    context = {}
+    context['user'] = request.user
+    return render(request, 'games.html')
