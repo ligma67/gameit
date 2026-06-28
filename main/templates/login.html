@@ -1,31 +1,42 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div style="vertical-align: middle; height: 100vh; display: flex; align-items: center; justify-content: space-around">
-
-    <form style="vertical-align:middle;" method="post">
-        <h3>Вход в аккаунт</h3>
+<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+    <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white">Вход в аккаунт</h2>
+  </div>
+  <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+    <form method="POST" class="space-y-6">
         {% csrf_token %}
-        <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Никнейм</label>
+      <div>
+        <label for="email" class="block text-sm/6 font-medium text-gray-100">Никнейм</label>
+        <div class="mt-2">
             {{reg_form.username}}
         </div>
-        <div class="mb-3">
-            <label for="exampleInputPassword1" class="form-label">Пароль</label>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between">
+          <label for="password" class="block text-sm/6 font-medium text-gray-100">Пароль</label>
+          <div class="text-sm">
+            <!--<a href="#" class="font-semibold text-sky-400 hover:text-sky-300">Forgot password?</a>-->
+            <!-- will be implemented later ig-->
+          </div>
+        </div>
+        <div class="mt-2">
             {{reg_form.password}}
         </div>
-        <div class="form-group mx-auto" style="max-width: 350px;padding-bottom: 10px;">
-        <div class="form-group mx-auto" style="max-width: 350px; padding-bottom: 10px;">
-            
+      </div>
 
-        </div>
-        {% if User_wrong_error %}
-        <p style="color: #d74221;">{{ User_wrong_error }}</p>
-        {% endif %}
-            <button type="submit" class="btn btn-primary align-self-center">Войти</button><br>
-            <a href="/register">Зарегистрироваться</a>
-
+      <div>
+        <button type="submit" class="flex w-full justify-center rounded-md bg-sky-600 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-sky-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500">Войти</button>
+      </div>
     </form>
 
+    <p class="mt-10 text-center text-sm/6 text-gray-400">
+      Или вы можете
+      <a href="register" class="font-semibold text-sky-400 hover:text-sky-300">создать аккаунт</a>
+    </p>
+  </div>
 </div>
 {% endblock %}

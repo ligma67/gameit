@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import ASCIIUsernameValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, MinLengthValidator
 # Create your models here.
 class Users(AbstractUser):
     username_valid = ASCIIUsernameValidator()
@@ -12,3 +13,16 @@ class Users(AbstractUser):
     
     description = models.CharField(max_length=500, blank=True, default="")
     bio = models.TextField(blank=True, default="")
+
+class Game(models.Model):
+    name = models.CharField(max_length=50, validators=[MinLengthValidator(4)])
+    short_description = models.CharField(max_length=150)
+    description = models.CharField(max_length=500)
+    
+class Rate(models.Model):
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='ratings')
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='ratings')
+    mark = models.IntegerField(default=10, validators=[
+        MinValueValidator(1), MaxValueValidator(5)
+    ])
+    comment = models.CharField(max_length=255, null=True)

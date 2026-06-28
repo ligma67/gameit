@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.models import User
 from main import forms
+from main import utils
 # from .models import Users
 # Create your views here.
 Users = get_user_model()
@@ -114,7 +115,7 @@ def profile(request, name=None):
 def games(request, name=None):
     context = {}
     context['user'] = request.user
-    context['games'] = range(1, 10)
+    context['games'] = [{'name': "Minecraft", 'rating': utils.generate_float(1, 10, 1)} for _ in range(10)]
     print(name)
     if name:
         context['game_name'] = name
