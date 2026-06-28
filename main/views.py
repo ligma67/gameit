@@ -111,7 +111,13 @@ def profile(request, name=None):
         return redirect("/")
     return render(request, "profile.html", context)
 
-def games(request):
+def games(request, name=None):
     context = {}
     context['user'] = request.user
-    return render(request, 'games.html')
+    context['games'] = range(1, 10)
+    print(name)
+    if name:
+        context['game_name'] = name
+        return render(request, 'gamepage.html', context)
+    else:
+        return render(request, 'games.html', context)

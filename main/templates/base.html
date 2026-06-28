@@ -1,49 +1,62 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" class="bg-gray-950 text-white">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mainstyle.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
     {% block head %}
     {% endblock %}
-
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/">Gameit</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="games">Games</a>
-        </li>
-      </ul>
-      {% if user.is_authenticated %}
-        <a href="profile" class="btn btn-primary" role="button">Профиль</a>
-      {% else %}
-        <a href="login" class="btn btn-primary" role="button">Войти</a>
-        <!--<a href="register" class="btn btn-secondary" role="button">Зарегистрироваться</a>-->
-      {% endif %}
-    </div>
-  </div>
-</nav>
 
-<main class="container my-5">
-    <div class="row">
-        <div class="col-12">
-            {% block content %}
-            
-            {% endblock %}
+<body class="min-h-screen bg-gray-950 text-gray-100 antialiased">
+
+    <nav class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
+        <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-8">
+                <a class="text-xl font-black tracking-wider text-purple-500 hover:text-purple-400 transition" href="/">
+                    Gameit
+                </a>
+
+                <ul class="flex items-center space-x-6 text-sm font-medium">
+                    <li>
+                        <a class="text-white hover:text-purple-400 transition" href="/">Home</a>
+                    </li>
+                    <li>
+                        <a class="text-gray-400 hover:text-white transition" href="/games">Games</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                {% if user.is_authenticated %}
+                <a href="/profile"
+                    class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition shadow-lg shadow-purple-600/20">
+                    Профиль
+                </a>
+                {% else %}
+                <a href="/login"
+                    class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition shadow-lg shadow-purple-600/20">
+                    Войти
+                </a>
+                <!--
+                    <a href="/register" class="bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium px-4 py-2 rounded-lg transition border border-gray-700">
+                        Зарегистрироваться
+                    </a> 
+                -->
+                {% endif %}
+            </div>
+
         </div>
-    </div>
-</main>
-  
+    </nav>
+    <main class="container mx-auto px-4 py-10">
+        {% block content %}
+
+        {% endblock %}
+    </main>
+
 </body>
+
 </html>

@@ -29,4 +29,5 @@ urlpatterns = [
     path('profile/@<str:name>', views.profile),
     path('games/', views.games),
     path('games', views.games),
+    path('games/<str:name>', views.games)
 ]
