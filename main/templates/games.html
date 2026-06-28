@@ -8,13 +8,16 @@
     <h1 class="text-3xl font-bold text-white-500 mb-6">Current trending games: </h1>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
         {% for game in games %}<!--can put max-w-[280px] for cards to be bigger-->
-        <a href="games/Minecraft">
+        <a href="/games/Minecraft">
             <div
                 class="max-w-[400px] w-full bg-slate-900 rounded-l border border-slate-200 hover:shadow-md hover:-translate-y-1 transition duration-200 flex flex-col justify-between p-5">
-                <div class="flex justify-between items-start space-x-3 mb-3">
-                    <div class="flex flex-col space-y-1">
-                        <h5 class="text-lg font-bold text-white break-words line-clamp-2">Minecraft</h5>
-                        <div class="flex items-center text-sm font-semibold ">
+                <div class="flex flex-col items-center mb-3 ">
+                    <img class="w-[100%] h-auto rounded-lg object-cover flex-shrink-0 border border-slate-700/50 bg-slate-700"
+                        src="https://static.vecteezy.com/system/resources/previews/071/959/691/non_2x/pixel-dirt-block-texture-horizontal-banner-seamless-brown-soil-pattern-with-retro-8bit-style-perfect-for-gamer-wallpapers-or-creative-posters-modern-abstract-illustration-vector.jpg"
+                        alt="Minecraft">
+                    <div class="flex flex-col space-y-1 pt-1">
+                        <h5 class="text-2xl font-bold text-white break-words line-clamp-2">Minecraft</h5>
+                        <div class="flex items-center text-xl font-semibold ">
                             <span class="{{ game.rating|rating_color }}">  
                                 <span
                                     class="ml-1 inline-flex h-[14px] w-[14px] items-center justify-center">
@@ -22,14 +25,12 @@
                                 </span>  
                                 {{ game.rating }}
                             </span>
-                            <span class="inline-flex items-center text-xs text-slate-500 ml-1">
+                            <span class="inline-flex items-center text-slate-500 ml-1">
                                 / 10
                             </span>
                         </div>
                     </div>
-                    <img class="w-[60px] h-[60px] rounded-lg object-cover flex-shrink-0"
-                        src="https://tr.rbxcdn.com/180DAY-6adc9e2b61a18903924425ab66e67d45/150/150/Image/Webp/noFilter"
-                        alt="Minecraft">
+                    
                 </div>
                 <p class="text-sm text-gray-300 leading-relaxed">
                     This is a longer card with supporting text below as a natural lead-in to additional content. This
@@ -41,7 +42,7 @@
     </div>
     <p class="text-xl p-4">
             Нет твоей игры?
-            <a class="text-blue-400 text-xl hover:text-blue-600 transition" href="{% if user.is_authenticated %}games/add {% else %} login {% endif %}">Добавь ее.</a>
+            <a class="text-blue-400 text-xl hover:text-blue-600 transition" href="{% if user.is_authenticated %}/games/add {% else %} login {% endif %}">Добавь ее.</a>
         </p>
 </div>
 {% endblock %}

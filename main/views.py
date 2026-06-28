@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from main import forms
 from main import utils
 # from .models import Users
@@ -122,3 +123,14 @@ def games(request, name=None):
         return render(request, 'gamepage.html', context)
     else:
         return render(request, 'games.html', context)
+    
+@login_required
+def add_game(request, name=None):
+    context = {}
+    context['user'] = request.user
+    context['games'] = [{'name': "Minecraft", 'rating': utils.generate_float(1, 10, 1)} for _ in range(10)]
+    if request.method == "POST":
+        print("good!")
+    else:
+        context['game_form'] = forms.game_form()
+    return render(request, 'addgame.html', context)
