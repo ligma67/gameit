@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from main import forms
 from main import utils
+from main.models import Game
 # from .models import Users
 # Create your views here.
 Users = get_user_model()
@@ -116,12 +117,20 @@ def profile(request, name=None):
 def games(request, name=None):
     context = {}
     context['user'] = request.user
-    context['games'] = [{'name': "Minecraft", 'rating': utils.generate_float(1, 10, 1)} for _ in range(10)]
+
     print(name)
     if name:
-        context['game_name'] = name
-        return render(request, 'gamepage.html', context)
-    else:
+        if Game.objects.filter(site_url_name=name).exists():
+            game = Game.objects.get(site_url_name=name)
+            context['game'] = {"Name":game.name}
+            return render(request, 'gamepage.html', context)
+        else:
+            return render(request, 'error.html')
+    else: 
+        games = Game.objects.all()
+        for game in games:
+            game.rating = utils.generate_float(1, 10, 1)
+        context['games'] = games
         return render(request, 'games.html', context)
     
 @login_required
@@ -129,8 +138,24 @@ def add_game(request, name=None):
     context = {}
     context['user'] = request.user
     context['games'] = [{'name': "Minecraft", 'rating': utils.generate_float(1, 10, 1)} for _ in range(10)]
+    context['result'] = None
     if request.method == "POST":
-        print("good!")
+        game_form = forms.game_form(request.POST, request.FILES)
+        if game_form.is_valid():
+            print(game_form.cleaned_data)
+            cleaned_data = game_form.cleaned_data
+            name = cleaned_data['name']
+            site_url_name = utils.generate_site_url_name(name=name)
+            short_description = cleaned_data['short_description']
+            description = cleaned_data['description']
+            icon = cleaned_data['game_icon']
+            game_link = cleaned_data['game_link']
+            if not Game.objects.filter(site_url_name=site_url_name).exists(): # запасная проверка на повтор, не особо надежная если честно
+                game = Game.objects.create(is_active=True,name=name, site_url_name=site_url_name, short_description=short_description, description=description, icon=icon)
+                game.save()
+                context['result'] = "Игра отправлена на модерацию (пока что ее нет, поэтому добавлена на сайт сразу)"
+            else:
+                context['result'] = "Возможно, игра уже есть на сайте"
     else:
         context['game_form'] = forms.game_form()
     return render(request, 'addgame.html', context)
