@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
-
+{% block head %}
+<title>@{{ username }} | Gameit</title>
+{% endblock %}
 {% block content %}
     <h3>@{{ username }}{% if user_itself %} - (Это вы)
         {% endif %}</h3>
