@@ -32,7 +32,8 @@ urlpatterns = [
     path('games/', views.games),
     path('games', views.games),
     path('games/add', views.add_game),
-    path('games/<str:name>', views.games)
+    path('games/<str:name>', views.game_page),
+    path('api/rating/<int:game_id>/', views.submit_rating)
 ]
 
 if settings.DEBUG:

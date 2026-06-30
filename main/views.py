@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from main import forms
 from main import utils
-from main.models import Game
+from main.models import Game, Rate
 # from .models import Users
 # Create your views here.
 Users = get_user_model()
@@ -117,21 +117,26 @@ def profile(request, name=None):
 def games(request, name=None):
     context = {}
     context['user'] = request.user
-
+    games = Game.objects.all()
+    for game in games:
+        game.rating = utils.generate_float(1, 10, 1)
+    context['games'] = games
+    return render(request, 'games.html', context)
+        
+def game_page(request, name):
     print(name)
+    context = {}
     if name:
         if Game.objects.filter(site_url_name=name).exists():
             game = Game.objects.get(site_url_name=name)
-            context['game'] = {"Name":game.name}
-            return render(request, 'gamepage.html', context)
+            context['game'] = game
+            if Rate.objects.filter(game=game, user=request.user):
+                context['user_rate'] = Rate.objects.get(game=game, user=request.user)
         else:
-            return render(request, 'error.html')
-    else: 
-        games = Game.objects.all()
-        for game in games:
-            game.rating = utils.generate_float(1, 10, 1)
-        context['games'] = games
-        return render(request, 'games.html', context)
+            context['error'] = "Игра не найдена."
+        return render(request, 'gamepage.html', context)
+    else:    
+        return render(request, 'error.html')
     
 @login_required
 def add_game(request, name=None):
@@ -151,7 +156,7 @@ def add_game(request, name=None):
             icon = cleaned_data['game_icon']
             game_link = cleaned_data['game_link']
             if not Game.objects.filter(site_url_name=site_url_name).exists(): # запасная проверка на повтор, не особо надежная если честно
-                game = Game.objects.create(is_active=True,name=name, site_url_name=site_url_name, short_description=short_description, description=description, icon=icon)
+                game = Game.objects.create(is_active=True,name=name, site_url_name=site_url_name, short_description=short_description, description=description, icon=icon, game_link=game_link, author=request.user)
                 game.save()
                 context['result'] = "Игра отправлена на модерацию (пока что ее нет, поэтому добавлена на сайт сразу)"
             else:
@@ -159,3 +164,42 @@ def add_game(request, name=None):
     else:
         context['game_form'] = forms.game_form()
     return render(request, 'addgame.html', context)
+
+def submit_rating(request, game_id):
+    if request.method == "POST":
+        rating_value = request.POST.get('rating')
+        if rating_value and str(rating_value).isnumeric():
+            mark = min(10, max(1, int(rating_value)))
+            
+            if not Game.objects.filter(id=game_id).exists():
+                return JsonResponse({'status':"error"}, status=400)
+            
+            game = Game.objects.get(id=game_id)
+            user = request.user
+            comment = ""
+            # TODO: add comments
+            if not Rate.objects.filter(game=game, user=user).exists():
+                # User hasn't rated this game
+                rate = Rate.objects.create(game=game, user=user, mark=mark, comment=comment)
+                rate.save()
+                print("new rate added")
+            else:
+                # User re-rating the game
+                rate = Rate.objects.get(game=game, user=user)
+                rate.mark = mark
+                rate.save()
+                print("rewriting existing rate")
+            return JsonResponse({
+                'status':"success",
+                "game_id":game_id,
+                "user_id":user.id,
+                'rating':mark
+            })
+        else:
+            return JsonResponse({
+                "status":"error",
+                "game_id":game_id
+            })
+            print("что-то не так с оценкой?")
+    print("???")
+    return JsonResponse({"status":"error", "message":"get-запросы не приветствуются"}, status=405)

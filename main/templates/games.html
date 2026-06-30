@@ -5,7 +5,7 @@
 {% endblock %}
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-white-500 mb-6">Current trending games: </h1>
+    <h1 class="text-3xl font-bold text-white-500 mb-6">Игры в тренде: </h1>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 items-start">
         {% for game in games %}<!--can put max-w-[280px] for cards to be bigger-->
         <a href="/games/{{ game.site_url_name }}" class="block">
@@ -16,7 +16,7 @@
                         src="{{ game.icon.url }}"
                         alt="Minecraft">
                     <div class="flex flex-col space-y-1 w-full text-center leading-tight">
-                        <h5 class="text-2xl font-bold text-white break-all ">{{ game.name }}</h5>
+                        <h5 class="text-2xl font-bold text-white break-words">{{ game.name }}</h5>
                         <div class="flex items-center justify-center text-xl font-semibold ">
                             <span class="{{ game.rating|rating_color }}">  
                                 <span
@@ -32,7 +32,7 @@
                     </div>
                     
                 </div>
-                <p class="text-sm text-gray-300  break-all leading-relaxed text-center">
+                <p class="text-sm text-gray-300  break-words leading-relaxed text-center">
                     {{ game.short_description }}
                 </p>
             </div>
@@ -40,8 +40,8 @@
         {% endfor %}
     </div>
     <p class="text-xl p-4">
-            Нет твоей игры?
-            <a class="text-blue-400 text-xl hover:text-blue-600 transition" href="{% if user.is_authenticated %}/games/add {% else %} login {% endif %}">Добавь ее.</a>
+            Нет вашей игры?
+            <a class="text-blue-400 text-xl hover:text-blue-600 transition" href="{% if user.is_authenticated %}/games/add {% else %} login {% endif %}">Добавьте ее.</a>
         </p>
 </div>
 {% endblock %}

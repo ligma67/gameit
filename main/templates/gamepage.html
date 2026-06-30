@@ -1,11 +1,71 @@
 {% extends 'base.html' %}
 {% block head %}
-    <title>{{ game_name }} | Gameit</title>
+<title>{{ game.name }} | Gameit</title>
 {% endblock %}
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-white-500 mb-6">{{ game_name }}</h1>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+<div class="container w-[83%] mx-auto px-4 py-8">
+
+    <div class="pt-6 flex items-center justify-between gap-6 p-4">
+        <div class="flex-1">
+            <h1 class="text-3xl font-bold text-white-500 mb-1">{{ game.name }}</h1>
+            <p class="mb-6">Автор: <a class="text-blue-400 hover:text-blue-500 transition"
+                    href="/profile/@{{ game.author.username }}">{{ game.author.username }}</a></p>
+            <h3 class="text-xl">
+                {{ game.description }}
+            </h3>
+            <form class="rating-form w-fit" data-item-id="{{ game.id }}">
+                {% csrf_token %}
+                <div class="flex flex-row-reverse rating-container px-0.5 justify-end items-center pt-6"
+                    data-item-id="{{ item.id }}">
+                    {% for i in "0987654321" %}
+                    {% with forloop.revcounter as vote %}
+                        <input type="radio" name="rating" id="star-{{ vote }}" value="{{ vote }}" class="peer hidden" {% if user_rate and user_rate.mark == vote %} checked {% endif %}>
+                        <label for="star-{{ vote }}"
+                            class="cursor-pointer text-4xl text-gray-300 transition-colors duration-200
+                        peer-checked:text-amber-400 peer-hover:text-green-400 transition-colors peer-hover:~peer-checked:text-amber-400">
+                            &#9733;
+                        </label>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            </form>
+        </div>
+        <div class="flex-shrink-0">
+            <img src="/media/{{ game.icon }}" alt="Game image" class="border-4 rounded-md border-fuchsia-800">
+            <p class="text-center text-slate-400">Иконка игры</p>
+        </div>
     </div>
 </div>
+
+<script>
+    document.querySelectorAll('.rating-form input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function(){
+            const form = this.closest('.rating-form');
+            const gameId = form.getAttribute('data-item-id');
+            const ratingValue = this.value;
+            const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value
+
+            fetch(`/api/rating/${gameId}/`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken
+                },
+                body: `rating=${ratingValue}`
+            }).then(response => response.json()).then(
+                data => {
+                    if (data.status == "success"){
+                        console.log("все норм");
+                    }
+                    else{
+                        console.error("чет не так");
+                        console.log(response)
+                    }
+                }
+            ).catch(error => {
+                console.error("Ошибка ajax(((:", error)
+            })
+        })
+    })
+</script>
 {% endblock %}

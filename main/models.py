@@ -6,6 +6,7 @@ import io
 from django.db import models
 from django.core.files.base import ContentFile
 from PIL import Image
+import uuid
 # Create your models here.
 class Users(AbstractUser):
     username_valid = ASCIIUsernameValidator()
@@ -30,29 +31,23 @@ class Game(models.Model):
     game_link = models.URLField(max_length=200, blank=True)
     is_active = models.BooleanField(default=False)
     
+    author = models.ForeignKey(Users, on_delete=models.SET_NULL, related_name='games', null=True) # null if something happened with the author
     def save(self, *args, **kwargs):
         if self.icon: # if img for some reason doesnt get compressed by js
+           
             img = Image.open(self.icon)
-            
-            MAX_SIZE = 300
+            MAX_SIZE = (300, 300)
             width, height = img.size
             
-            if width > MAX_SIZE or height > MAX_SIZE:
-                if width > height:
-                    upd_height = int(round((height * MAX_SIZE) / width))
-                    upd_width = MAX_SIZE
-                else:
-                    upd_width = int(round((width * MAX_SIZE) / height))
-                    upd_height = MAX_SIZE
-                img.resize((upd_width, upd_height), Image.Resampling.LANCZOS)
-                buffer = io.BytesIO()
-                img.convert('RGB').save(buffer, format="JPEG", quality=80)
-                
-                current_name = self.icon.name.split('/')[-1]
-                name_without_ext = current_name.split('.')[0]
-                new_filename = f"{name_without_ext}.jpg"
-                self.icon.save(new_filename, ContentFile(buffer.getvalue()), save=False)
-            super().save(*args, **kwargs)
+            img.thumbnail(MAX_SIZE, Image.Resampling.LANCZOS)
+            buffer = io.BytesIO()
+            img.convert("RGB").save(buffer, format="JPEG", quality=80)
+            buffer.seek(0)
+            new_filename = f"{uuid.uuid4()}.jpg"
+            
+            self.icon.field.save_form_data(self, ContentFile(buffer.read(), name=new_filename))
+            
+        super().save(*args, **kwargs)
     
 class Rate(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='ratings')
@@ -60,4 +55,4 @@ class Rate(models.Model):
     mark = models.IntegerField(default=10, validators=[
         MinValueValidator(1), MaxValueValidator(10)
     ])
-    comment = models.CharField(max_length=255, null=True)
+    comment = models.CharField(max_length=255, null=True) # todo: add datetimes?
