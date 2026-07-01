@@ -23,7 +23,7 @@
                                     class="ml-1 inline-flex h-[14px] w-[14px] items-center justify-center">
                                     {% include "icons/star.svg" %}
                                 </span>  
-                                {{ game.rating }}
+                                {{ game.rating|get_rating }}
                             </span>
                             <span class="inline-flex items-center text-slate-500 ml-1">
                                 / 10

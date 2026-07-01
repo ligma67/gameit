@@ -3,9 +3,11 @@ from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum, Count
 from main import forms
 from main import utils
 from main.models import Game, Rate
+import json
 # from .models import Users
 # Create your views here.
 Users = get_user_model()
@@ -119,17 +121,24 @@ def games(request, name=None):
     context['user'] = request.user
     games = Game.objects.all()
     for game in games:
-        game.rating = utils.generate_float(1, 10, 1)
+        rating = json.loads(get_rating(request, game.id).content)
+        if rating["status"] == "ok":
+            game.rating = rating['rating']
+        else:
+            game.rating = -1
     context['games'] = games
     return render(request, 'games.html', context)
         
+@login_required #временно..
 def game_page(request, name):
     print(name)
     context = {}
     if name:
         if Game.objects.filter(site_url_name=name).exists():
             game = Game.objects.get(site_url_name=name)
+            rating = json.loads(get_rating(request, game.id).content)
             context['game'] = game
+            context['rating'] = rating
             if Rate.objects.filter(game=game, user=request.user):
                 context['user_rate'] = Rate.objects.get(game=game, user=request.user)
         else:
@@ -165,7 +174,7 @@ def add_game(request, name=None):
         context['game_form'] = forms.game_form()
     return render(request, 'addgame.html', context)
 
-def submit_rating(request, game_id):
+def rating(request, game_id):
     if request.method == "POST":
         rating_value = request.POST.get('rating')
         if rating_value and str(rating_value).isnumeric():
@@ -199,7 +208,35 @@ def submit_rating(request, game_id):
             return JsonResponse({
                 "status":"error",
                 "game_id":game_id
-            })
+            }, status=400)
             print("что-то не так с оценкой?")
+    else:
+        return get_rating(request, game_id)
     print("???")
     return JsonResponse({"status":"error", "message":"get-запросы не приветствуются"}, status=405)
+
+def get_rating(request, game_id):
+    if request.method == "GET":
+        if not Game.objects.filter(id=game_id).exists():
+            print("Игра не найдена")
+            return JsonResponse({
+                "status":"error",
+                "game_id":game_id,
+                "message":"Game not found"
+            })
+        game = Game.objects.get(id=game_id)
+        ratings = game.ratings.all()
+        stats = ratings.aggregate(
+            total_sum = Sum('mark'),
+            amt = Count("id")
+        )
+        total_sum = stats['total_sum']
+        amount = stats['amt']
+        print(total_sum, amount)
+        
+        return JsonResponse({
+            "status":"ok",
+            "rating": round(total_sum/amount, 1) if amount > 0 else -1,
+            "votes" : amount
+        })
+        

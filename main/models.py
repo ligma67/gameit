@@ -45,7 +45,7 @@ class Game(models.Model):
             buffer.seek(0)
             new_filename = f"{uuid.uuid4()}.jpg"
             
-            self.icon.field.save_form_data(self, ContentFile(buffer.read(), name=new_filename))
+            self.icon = ContentFile(buffer.read(), name=new_filename)
             
         super().save(*args, **kwargs)
     
